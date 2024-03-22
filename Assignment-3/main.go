@@ -1,77 +1,64 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"math/rand"
-	"os"
+	"net/http"
 	"time"
+	"github.com/gin-gonic/gin"
 )
 
-type Status struct {
-	Water int `json:"water"`
-	Wind  int `json:"wind"`
+type Data struct {
+	WaterCon    int16  `json:"water_con"`
+	WaterStatus string `json:"water_status"`
+	WindCon     int16  `json:"win_con"`
+	WindStatus  string `json:"wind_status"`
 }
 
 func main() {
-	status := generateStatus()
-	saveStatusToFile(status)
+	g := gin.Default()
 
-	data := getStatusFromFile()
+	data := Data{}
 
-	waterStatus := getStatusLabel(data.Water, 8, 6)
-	windStatus := getStatusLabel(data.Wind, 15, 7)
+	go func() {
+		for {
+			data.updateStatus()
+			time.Sleep(15 * time.Second)
+		}
+	}()
 
-	fmt.Println("Water Level:", data.Water, ", Status:", waterStatus)
-	fmt.Println("Wind Speed:", data.Wind, ", Status:", windStatus)
+	g.GET("/", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, data)
+	})
+
+	g.Run(":3000")
 }
 
-func generateStatus() Status {
-	rand.Seed(time.Now().UnixNano())
-	return Status{
-		Water: rand.Intn(100),
-		Wind:  rand.Intn(100),
-	}
-}
+func (d *Data) updateStatus() {
+	max := 100
+	min := 1
 
-func saveStatusToFile(status Status) {
-	file, err := os.Create("status.json")
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
+	d.WaterCon = int16(rand.Intn(max-min) + min)
+	d.WindCon = int16(rand.Intn(max-min) + min)
 
-	jsonData, err := json.Marshal(status)
-	if err != nil {
-		panic(err)
+	waterStatus := "Aman"
+	if d.WaterCon < 5 {
+		waterStatus = "Aman"
+	} else if d.WaterCon <= 8 {
+		waterStatus = "Siaga"
+	} else if d.WaterCon > 8 {
+		waterStatus = "Bahaya"
 	}
 
-	_, err = file.WriteString(string(jsonData))
-	if err != nil {
-		panic(err)
-	}
-}
+	d.WaterStatus = waterStatus
 
-func getStatusFromFile() Status {
-	dataFile, err := os.ReadFile("status.json")
-	if err != nil {
-		panic(err)
-	}
-
-	var status Status
-	err = json.Unmarshal(dataFile, &status)
-	if err != nil {
-		panic(err)
+	windStatus := "Aman"
+	if d.WindCon < 6 {
+		windStatus = "Aman"
+	} else if d.WindCon < 15 {
+		windStatus = "Siaga"
+	} else if d.WindCon >= 15 {
+		windStatus = "Bahaya"
 	}
 
-	return status
-}
-
-func getStatusLabel(value, highThreshold, mediumThreshold int) string {
-	if value > highThreshold {
-		return "Danger"
-	} else if value >= mediumThreshold {
-		return "Alert"
-	}
-	return "Safe"
+	d.WindStatus = windStatus
 }
