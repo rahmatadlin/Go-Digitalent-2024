@@ -1,2 +1,3 @@
 # Go-Digitalent-2024
-Kumpulan folder &amp; file assignment Golang-006
+
+Collection of folders &amp; files assigment Golang 006
