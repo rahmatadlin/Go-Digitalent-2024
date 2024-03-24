@@ -6,7 +6,9 @@ import (
 
 	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/internal/model"
 	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/internal/service"
-
+	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/pkg/response"
+	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/pkg/helper"
+	
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
 )

@@ -8,7 +8,7 @@ import (
 
 	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/internal/model"
 	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/internal/repository"
-	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/pkg/helpers"
+	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/pkg/helper"
 )
 
 type UserService interface {

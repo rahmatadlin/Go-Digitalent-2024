@@ -1,4 +1,4 @@
-package helpers
+package helper
 
 import (
 	"encoding/json"
@@ -64,4 +64,9 @@ func GenerateHash(in string) (out string, err error) {
 		return
 	}
 	return string(outByte), err
+}
+
+func CheckPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }

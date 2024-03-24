@@ -8,6 +8,8 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/internal/model"
 	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/internal/service"
+	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/pkg/response"
+	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/pkg/helper"
 )
 
 type UserHandler interface {

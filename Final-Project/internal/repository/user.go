@@ -5,99 +5,87 @@ import (
 
 	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/internal/infrastructure"
 	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/internal/model"
-	"gorm.io/gorm"
 )
 
-type CommentRepository interface {
-	CreateComment(ctx context.Context, comment *model.Comment) error
-	GetAllCommentsByPhotoId(ctx context.Context, photoId uint32) ([]model.CommentView, error)
-	GetCommentById(ctx context.Context, commentId uint32) (*model.Comment, error)
-	UpdateComment(ctx context.Context, comment *model.Comment) error
-	DeleteComment(ctx context.Context, commentId uint32) error
+type UserRepository interface {
+	GetUserById(ctx context.Context, userId uint32) (model.User, error)
+	CreateUser(ctx context.Context, user *model.User) error
+	GetUserByEmail(ctx context.Context, email string) (model.User, error)
+	EditUser(ctx context.Context, user *model.User) error
+	DeleteUser(ctx context.Context, userId uint32) error
 }
 
-type commentRepositoryImpl struct {
+type userRepositoryImpl struct {
 	db infrastructure.GormPostgres
 }
 
-func NewCommentRepository(db infrastructure.GormPostgres) CommentRepository {
-	return &commentRepositoryImpl{db: db}
+func NewUserRepository(db infrastructure.GormPostgres) UserRepository {
+	return &userRepositoryImpl{db: db}
 }
 
-func (c *commentRepositoryImpl) CreateComment(ctx context.Context, comment *model.Comment) error {
-	db := c.db.GetConnection()
+func (u *userRepositoryImpl) GetUserById(ctx context.Context, userId uint32) (model.User, error) {
+	db := u.db.GetConnection()
+
+	user := model.User{}
 
 	err := db.
 		WithContext(ctx).
-		Table("comments").
-		Create(&comment).
+		Model(&user).
+		Where("id = ?", userId).
+		Find(&user).
+		Error
+
+	return user, err
+}
+
+func (u *userRepositoryImpl) GetUserByEmail(ctx context.Context, email string) (model.User, error) {
+	db := u.db.GetConnection()
+
+	user := model.User{}
+
+	err := db.
+		WithContext(ctx).
+		Model(&user).
+		Where("email = ?", email).
+		Find(&user).
+		Error
+
+	return user, err
+}
+
+func (u *userRepositoryImpl) CreateUser(ctx context.Context, user *model.User) error {
+	db := u.db.GetConnection()
+
+	err := db.
+		WithContext(ctx).
+		Table("users").
+		Create(&user).
 		Error
 
 	return err
 }
 
-func (c *commentRepositoryImpl) GetAllCommentsByPhotoId(ctx context.Context, photoId uint32) ([]model.CommentView, error) {
-	db := c.db.GetConnection()
-	comments := []model.CommentView{}
+func (u *userRepositoryImpl) EditUser(ctx context.Context, user *model.User) error {
+	db := u.db.GetConnection()
 
 	err := db.
 		WithContext(ctx).
-		Table("comments").
-		Where("photo_id = ?", photoId).
-		Where("deleted_at IS NULL").
-		Preload("User", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id, email, username").Table("users").Where("deleted_at is null")
-		}).
-		Preload("Photo", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id, title, caption, photo_url, user_id").Table("photos").Where("deleted_at is null")
-		}).
-		Find(&comments).
-		Error
-
-	if err != nil {
-		return nil, err
-	}
-
-	return comments, nil
-}
-
-func (c *commentRepositoryImpl) GetCommentById(ctx context.Context, commentId uint32) (*model.Comment, error) {
-	db := c.db.GetConnection()
-	comment := model.Comment{}
-
-	err := db.
-		WithContext(ctx).
-		Table("comments").
-		Where("id = ?", commentId).
-		Where("deleted_at IS NULL").
-		Find(&comment).
-		Error
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &comment, nil
-}
-
-func (c *commentRepositoryImpl) UpdateComment(ctx context.Context, comment *model.Comment) error {
-	db := c.db.GetConnection()
-	err := db.
-		WithContext(ctx).
-		Updates(&comment).
+		Updates(&user).
 		Error
 
 	return err
 }
 
-func (c *commentRepositoryImpl) DeleteComment(ctx context.Context, commentId uint32) error {
-	db := c.db.GetConnection()
-	comment := model.Comment{ID: commentId}
+func (u *userRepositoryImpl) DeleteUser(ctx context.Context, userId uint32) error {
+	db := u.db.GetConnection()
+
+	user := model.User{ID: userId}
 
 	err := db.
 		WithContext(ctx).
-		Model(&comment).
-		Delete(&comment).
+		Table("users").
+		Where("id = ?", userId).
+		Delete(&user).
 		Error
 
 	return err

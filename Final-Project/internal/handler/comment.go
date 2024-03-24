@@ -8,8 +8,8 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/internal/model"
 	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/internal/service"
-	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/pkg/helpers"
-	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/pkg/responses"
+	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/pkg/helper"
+	"github.com/rahmatadlin/Go-Digitalent-2024/Final-Project/pkg/response"
 )
 
 type CommentHandler interface {
